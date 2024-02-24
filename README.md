@@ -123,7 +123,7 @@ npm start
 Pour utiliser l'application, une fois les commandes précédentes lancées vous devrez vous rendre à l'adresse suivante:
 
 ```bash
-http://localhost:3000/api-docs
+http://localhost:3000/documentation
 ```
 
 Le port pourra être différent, il doit être égale à celui précisé dans le fichier .env à la racine du projet.
