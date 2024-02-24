@@ -1,6 +1,8 @@
 require('dotenv').config();
 const amqp = require('amqplib');
 const nodemailer = require('nodemailer');
+const path = require('path');
+
 
 async function startConsumer() {
     const conn = await amqp.connect(process.env.AMQP_URL || 'amqp://localhost');
@@ -14,6 +16,7 @@ async function startConsumer() {
     channel.consume(queue, async (msg) => {
         if (msg !== null) {
             const messageData = JSON.parse(msg.content.toString());
+            const to = messageData.usersEmails?.join(', ');
 
             const transporter = nodemailer.createTransport({
                 host: process.env.MAIL_HOST,
@@ -40,7 +43,6 @@ async function startConsumer() {
                     };
                     break;
                 case 'newFilm':
-
                     mailOptions = {
                         from: 'samuel.pouyade@example.com',
                         to: to,
@@ -54,6 +56,20 @@ async function startConsumer() {
                         to: to,
                         subject: `Film modifié : ${messageData.title}`,
                         text: messageData.message,
+                    };
+                    break;
+                case 'sendCsv':
+                    mailOptions = {
+                        from: 'samuel.pouyade@example.com',
+                        to: messageData.email,
+                        subject: messageData.subject,
+                        text: messageData.text,
+                        attachments: [
+                            {
+                                filename: path.basename(messageData.filePath),
+                                path: messageData.filePath
+                            }
+                        ],
                     };
                     break;
                 default:
