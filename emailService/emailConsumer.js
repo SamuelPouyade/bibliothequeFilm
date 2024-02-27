@@ -2,6 +2,7 @@ require('dotenv').config();
 const amqp = require('amqplib');
 const nodemailer = require('nodemailer');
 const path = require('path');
+const {Boom} = require("@hapi/boom");
 
 
 async function startConsumer() {
@@ -13,7 +14,7 @@ async function startConsumer() {
 
     console.log(" [*] En attente de messages dans %s.", queue);
 
-    channel.consume(queue, async (msg) => {
+    await channel.consume(queue, async (msg) => {
         if (msg !== null) {
             const messageData = JSON.parse(msg.content.toString());
             const to = messageData.usersEmails?.join(', ');
@@ -36,7 +37,7 @@ async function startConsumer() {
             switch (messageData.type) {
                 case 'welcome':
                     mailOptions = {
-                        from: 'samuel.pouyade@example.com',
+                        from: process.env.MAIL_USER,
                         to: messageData.email,
                         subject: 'Bienvenue !',
                         text: `Bonjour ${messageData.name}, bienvenue sur notre site !`,
@@ -44,7 +45,7 @@ async function startConsumer() {
                     break;
                 case 'newFilm':
                     mailOptions = {
-                        from: 'samuel.pouyade@example.com',
+                        from: process.env.MAIL_USER,
                         to: to,
                         subject: `Nouveau film ajouté : ${messageData.title}`,
                         text: messageData.message,
@@ -52,7 +53,7 @@ async function startConsumer() {
                     break;
                 case 'updateFilm':
                     mailOptions = {
-                        from: 'samuel.pouyade@example.com',
+                        from: process.env.MAIL_USER,
                         to: to,
                         subject: `Film modifié : ${messageData.title}`,
                         text: messageData.message,
@@ -60,7 +61,7 @@ async function startConsumer() {
                     break;
                 case 'sendCsv':
                     mailOptions = {
-                        from: 'samuel.pouyade@example.com',
+                        from: process.env.MAIL_USER,
                         to: messageData.email,
                         subject: messageData.subject,
                         text: messageData.text,
@@ -73,17 +74,14 @@ async function startConsumer() {
                     };
                     break;
                 default:
-                    console.error("Type de message inconnu:", messageData.type);
-                    channel.ack(msg);
+                    throw Boom.badRequest('Type de message inconnu: ' + messageData.type);
                     return;
             }
 
             console.log("Options de mail:", mailOptions);
 
             if (!mailOptions.to) {
-                console.error("L'adresse email du destinataire est manquante ou vide.");
-                channel.ack(msg);
-                return;
+                throw Boom.badRequest('Aucun email renseigné');
             }
 
             try {
@@ -92,8 +90,7 @@ async function startConsumer() {
                 console.log(`Lien de prévisualisation: ${nodemailer.getTestMessageUrl(info)}`);
                 channel.ack(msg);
             } catch (error) {
-                console.error("Erreur lors de l'envoi de l'email:", error);
-                channel.nack(msg);
+                throw Boom.internal('Erreur lors de l\'envoi du mail', error);
             }
         }
     });
