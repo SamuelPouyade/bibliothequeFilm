@@ -2,7 +2,7 @@ require('dotenv').config();
 const amqp = require('amqplib');
 const nodemailer = require('nodemailer');
 const path = require('path');
-const {Boom} = require("@hapi/boom");
+const Boom  = require('@hapi/boom');
 
 
 async function startConsumer() {
@@ -81,7 +81,7 @@ async function startConsumer() {
             console.log("Options de mail:", mailOptions);
 
             if (!mailOptions.to) {
-                throw Boom.badRequest('Aucun email renseigné');
+                throw Boom.badRequest('Aucun destinataire spécifié');
             }
 
             try {
