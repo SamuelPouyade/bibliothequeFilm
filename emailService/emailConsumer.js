@@ -59,6 +59,22 @@ async function startConsumer() {
                         text: messageData.message,
                     };
                     break;
+                case 'filmDeleted':
+                    mailOptions = {
+                        from: process.env.MAIL_USER,
+                        to: to,
+                        subject: `Film supprimé : ${messageData.title}`,
+                        text: messageData.message,
+                    };
+                    break;
+                case 'information':
+                    mailOptions = {
+                        from: process.env.MAIL_USER,
+                        to: to,
+                        subject: messageData.subject,
+                        text: messageData.message.message,
+                    };
+                    break;
                 case 'sendCsv':
                     mailOptions = {
                         from: process.env.MAIL_USER,
