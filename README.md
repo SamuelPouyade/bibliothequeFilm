@@ -8,7 +8,7 @@ En plus, chaque utilisateur peut consulter la liste des films disponibles et en 
 Toute cette gestion se fait via swagger.
 
 Pour gérer cette bibliothèque, les utilisateurs peuvent avoir le choix entre deux rôles :
-- `ADMIN` : qui a le droit de consulter, ajouter, modifier et supprimer des films. Il peut aussi gérer les profils de tous les utilisateurs.
+- `ADMIN` : qui a le droit de consulter, ajouter, modifier et supprimer des films. Il peut aussi gérer les profils de tous les utilisateurs. Il peut aussi envoyer des mails d'informations à l'ensemble des utilisateurs.
 - `USER` : qui a le droit de consulter des films. En plus, il peut ajouter des films à sa liste de films favoris.
 
 ## Technologies utilisées
